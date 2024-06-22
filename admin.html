@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Page</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background-color: #f0f0f0;
+            color: #333;
+            position: relative;
+        }
+
+        .header {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 10px 20px;
+            background-color: #4CAF50;
+            color: white;
+            border-radius: 5px;
+            margin-bottom: 20px;
+        }
+
+        .header h1 {
+            margin: 0;
+            font-size: 24px;
+        }
+
+        .login-form, .admin-form, .history {
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+        }
+
+        .login-form input, .admin-form input {
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+
+        .login-form button, .admin-form button {
+            width: 100%;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            padding: 10px;
+            cursor: pointer;
+            border-radius: 5px;
+            font-size: 16px;
+        }
+
+        .login-form button:hover, .admin-form button:hover {
+            background-color: #45a049;
+        }
+
+        .history {
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .history h2 {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .history ul {
+            list-style-type: none;
+            padding: 0;
+        }
+
+        .history li {
+            display: flex;
+            align-items: center;
+            background-color: #f9f9f9;
+            padding: 10px;
+            margin-bottom: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+
+        .history li input {
+            margin-right: 10px;
+        }
+
+        .history-buttons {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 20px;
+        }
+
+        .history-buttons button {
+            background-color: #ff5733;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            cursor: pointer;
+            border-radius: 5px;
+        }
+
+        .history-buttons button:hover {
+            background-color: #c13d20;
+        }
+
+        /* Popup styles */
+        .popup {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .popup-content {
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+
+        .popup-content h2 {
+            margin: 0 0 10px;
+        }
+
+        .popup-content button {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            padding: 10px;
+            cursor: pointer;
+            border-radius: 5px;
+            font-size: 16px;
+            margin-top: 10px;
+        }
+
+        .popup-content button:hover {
+            background-color: #45a049;
+        }
+
+        .popup-content button.cancel {
+            background-color: #ff0000;
+        }
+
+        .popup-content button.cancel:hover {
+            background-color: #cc0000;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>Admin Page</h1>
+    </div>
+
+    <div class="login-form" id="login-form">
+        <h2>Admin Login</h2>
+        <input type="password" id="admin-password" placeholder="Enter Password">
+        <button onclick="showPopup('login-popup')">Login</button>
+        <h2>Deposit Notification</h2>
+        <input type="text" id="deposit-user-id" placeholder="Enter User ID for Deposit">
+        <input type="number" id="deposit-amount" placeholder="Enter Deposit Amount">
+        <button onclick="showPopup('deposit-popup')">Send Deposit Notification</button>
+    </div>
+
+    <div class="admin-form" id="admin-form" style="display: none;">
+        <h2>Add World Locks</h2>
+        <input type="text" id="user-id" placeholder="Enter User ID">
+        <input type="number" id="world-locks" placeholder="Enter World Locks">
+        <button onclick="addWorldLocks()">Add</button>
+
+        <h2>Delete World Locks</h2>
+        <input type="text" id="delete-user-id" placeholder="Enter User ID">
+        <input type="number" id="delete-world-locks" placeholder="Enter World Locks to Delete">
+        <button onclick="deleteWorldLocks()">Delete</button>
+    </div>
+
+    <div class="history" id="history" style="display: none;">
+        <h2>History</h2>
+        <ul id="history-list"></ul>
+        <div class="history-buttons">
+            <button onclick="deleteSelected()">Delete Selected</button>
+            <button class="delete-all" onclick="deleteAll()">Delete All</button>
+        </div>
+    </div>
+
+    <!-- Popups -->
+    <div class="popup" id="login-popup">
+        <div class="popup-content">
+            <h2>Confirm Login</h2>
+            <p>Are you sure you want to login?</p>
+            <button onclick="login()">Yes</button>
+            <button class="cancel" onclick="hidePopup('login-popup')">No</button>
+        </div>
+    </div>
+
+    <div class="popup" id="deposit-popup">
+        <div class="popup-content">
+            <h2>Confirm Deposit Notification</h2>
+            <p>Are you sure you want to send this deposit notification?</p>
+            <button onclick="sendDepositNotification()">Yes</button>
+            <button class="cancel" onclick="hidePopup('deposit-popup')">No</button>
+        </div>
+    </div>
+
+    <div class="popup" id="error-popup">
+        <div class="popup-content">
+            <h2>Error</h2>
+            <p id="error-message">There was an error.</p>
+            <button class="cancel" onclick="hidePopup('error-popup')">Close</button>
+        </div>
+    </div>
+
+    <script>
+        const ADMIN_PASSWORD = 'C';
+
+        function showPopup(popupId) {
+            document.getElementById(popupId).style.display = 'flex';
+        }
+
+        function hidePopup(popupId) {
+            document.getElementById(popupId).style.display = 'none';
+        }
+
+        function login() {
+            const password = document.getElementById('admin-password').value;
+            if (password === ADMIN_PASSWORD) {
+                hidePopup('login-popup');
+                document.getElementById('login-form').style.display = 'none';
+                document.getElementById('admin-form').style.display = 'block';
+                document.getElementById('history').style.display = 'block';
+                loadHistory();
+            } else {
+                showError('Incorrect password');
+            }
+        }
+
+        function addWorldLocks() {
+            const userId = document.getElementById('user-id').value;
+            const worldLocks = parseInt(document.getElementById('world-locks').value);
+            if (userId && worldLocks > 0) {
+                let totalWl = parseInt(localStorage.getItem(`wl-${userId}`)) || 0;
+                totalWl += worldLocks;
+                localStorage.setItem(`wl-${userId}`, totalWl);
+                alert('World Locks added successfully!');
+
+                // Add to history
+                const history = JSON.parse(localStorage.getItem('history')) || [];
+                history.push({ userId, worldLocks, timestamp: new Date().toLocaleString() });
+                localStorage.setItem('history', JSON.stringify(history));
+                loadHistory();
+            } else {
+                showError('Please enter valid user ID and world locks');
+            }
+        }
+
+        function deleteWorldLocks() {
+            const userId = document.getElementById('delete-user-id').value;
+            const worldLocksToDelete = parseInt(document.getElementById('delete-world-locks').value);
+            if (userId && worldLocksToDelete > 0) {
+                let totalWl = parseInt(localStorage.getItem(`wl-${userId}`)) || 0;
+                if (totalWl >= worldLocksToDelete) {
+                    totalWl -= worldLocksToDelete;
+                    localStorage.setItem(`wl-${userId}`, totalWl);
+                    alert(`Successfully deleted ${worldLocksToDelete} World Locks for user ${userId}`);
+
+                    // Add to history
+                    const history = JSON.parse(localStorage.getItem('history')) || [];
+                    history.push({ userId, worldLocks: -worldLocksToDelete, timestamp: new Date().toLocaleString() });
+                    localStorage.setItem('history', JSON.stringify(history));
+                    loadHistory();
+                } else {
+                    showError('User does not have enough World Locks to delete');
+                }
+            } else {
+                showError('Please enter valid user ID and world locks to delete');
+            }
+        }
+
+        function sendDepositNotification() {
+            const userId = document.getElementById('deposit-user-id').value;
+            const depositAmount = parseInt(document.getElementById('deposit-amount').value);
+            if (userId && depositAmount > 0) {
+                hidePopup('deposit-popup');
+                const message = `Deposit request for User ID: ${userId}\nDeposit Amount: ${depositAmount}`;
+                const phoneNumber = 'YOUR_ADMIN_PHONE_NUMBER'; // Ganti dengan nomor WhatsApp admin
+
+                // Buat URL untuk mengirim pesan via WhatsApp
+                const waUrl = `https://wa.me/${phoneNumber}?text=${encodeURIComponent(message)}`;
+
+                // Buka URL tersebut
+                window.open(waUrl, '_blank');
+
+                // Bersihkan input setelah mengirim
+                document.getElementById('deposit-user-id').value = '';
+                document.getElementById('deposit-amount').value = '';
+            } else {
+                hidePopup('deposit-popup');
+                showError('Please enter valid user ID and deposit amount');
+            }
+        }
+
+        function showError(message) {
+            document.getElementById('error-message').textContent = message;
+            showPopup('error-popup');
+        }
+
+        function loadHistory() {
+            const history = JSON.parse(localStorage.getItem('history')) || [];
+            const historyList = document.getElementById('history-list');
+            historyList.innerHTML = '';
+            history.forEach((entry, index) => {
+                const listItem = document.createElement('li');
+                listItem.innerHTML = `<input type="checkbox" value="${index}"> User ID: ${entry.userId}, World Locks: ${entry.worldLocks}, Time: ${entry.timestamp}`;
+                historyList.appendChild(listItem);
+            });
+        }
+
+        function deleteSelected() {
+            const checkboxes = document.querySelectorAll('#history-list input[type="checkbox"]:checked');
+            const history = JSON.parse(localStorage.getItem('history')) || [];
+            checkboxes.forEach(checkbox => {
+                history.splice(parseInt(checkbox.value), 1);
+            });
+            localStorage.setItem('history', JSON.stringify(history));
+            loadHistory();
+        }
+
+        function deleteAll() {
+            if (confirm('Are you sure you want to delete all history?')) {
+                localStorage.removeItem('history');
+                loadHistory();
+            }
+        }
+    </script>
+</body>
+</html>
